@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import frc.robot.Constants;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+
 import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -10,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase {
 
-    
     private SparkFlex elevatorLeft;
     private SparkFlex elevatorRight;
 
@@ -20,6 +20,8 @@ public class Elevator extends SubsystemBase {
     private PIDController pidController;
 
     private double setpoint; // Desired elevator position
+    private double maxHeight = 5;
+    private double minHeight = 0;
 
     public Elevator() {
         pidController.setTolerance(0.05); // Small error tolerance
@@ -35,8 +37,34 @@ public class Elevator extends SubsystemBase {
     
     }
 
+    public void moveUp(){
+        setpoint = setpoint + 0.1;
+        if(setpoint > maxHeight){
+            setpoint = maxHeight;
+        }
+        if(setpoint < minHeight){
+            setpoint = minHeight;
+        }
+    }
+
+    public void moveDown(){
+        setpoint = setpoint - 0.1;
+        if(setpoint > maxHeight){
+            setpoint = maxHeight;
+        }
+        if(setpoint < minHeight){
+            setpoint = minHeight;
+        }
+    }
+
     public void setHeight(double targetPosition) {
         setpoint = targetPosition;
+        if(setpoint > maxHeight){
+            setpoint = maxHeight;
+        }
+        if(setpoint < minHeight){
+            setpoint = minHeight;
+        }
     }
 
     public boolean isAtSetpoint() {

@@ -6,14 +6,18 @@ package frc.robot;
 
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
+import frc.robot.commands.LeftToReef;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.ManualMoveElevator;
 import frc.robot.commands.MoveWristCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Wrist;
 import swervelib.SwerveInputStream;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -25,6 +29,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+
+
+  private final SendableChooser<Command> autoChooser = new SendableChooser<>();
+
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem();
 
@@ -41,7 +49,11 @@ public class RobotContainer {
   
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Configure the trigger bindings
+    // Configure the trigger binding
+    
+    autoChooser.setDefaultOption("Reef Auto", LeftToReef.auto(drivebase, elevator, wrist, intake));
+    SmartDashboard.putData("Auto Choices", autoChooser);
+    
     drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
     configureButtonBindings();
   }
@@ -66,6 +78,9 @@ Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAn
   
     //ELEVATOR
 
+    m_operatorController.rightBumper().onTrue(new ManualMoveElevator(elevator, "moveUp"));
+    m_operatorController.leftBumper().onTrue(new ManualMoveElevator(elevator, "moveDown"));
+
     //Move elevator to 0 postition when D-Pad Down is pressed
     m_operatorController.povDown().onTrue(new ElevatorCommand(elevator, 0));
     
@@ -84,10 +99,10 @@ Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAn
     // INTAKE
 
     // BallIn_TubeIn on RT press
-    m_operatorController.rightTrigger().onTrue(new IntakeCommand( intake, "BallIn_TubeOut"));
+    m_operatorController.rightTrigger().onTrue(new IntakeCommand( intake, "BallIn_TubeOut", m_operatorController.getRightTriggerAxis()));
     
     // BallOut_TubeOut on LT press
-    m_operatorController.leftTrigger().onTrue(new IntakeCommand(intake, "BallOut_TubeIn"));
+    m_operatorController.leftTrigger().onTrue(new IntakeCommand(intake, "BallOut_TubeIn", m_operatorController.getLeftTriggerAxis()));
 
     // WRIST
 
@@ -96,5 +111,12 @@ Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAn
 
     // Down on Left D-Pad
     m_operatorController.povLeft().onTrue(new MoveWristCommand(wrist, "DOWN"));
+  
+    
+  
+  }
+  public Command getAutonomousCommand() {
+    // An example command will be run in autonomous
+    return autoChooser.getSelected();
   }
 }

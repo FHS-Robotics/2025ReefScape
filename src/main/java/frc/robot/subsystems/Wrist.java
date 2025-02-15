@@ -29,7 +29,7 @@ public class Wrist extends SubsystemBase{
         wristEncoder = rotationalMotor.getEncoder();
 
         pidController = new PIDController(0.1, 0.0, 0.0);
-        pidController.setTolerance(0.1);
+        pidController.setTolerance(0.3);
         speed = 0.3;
     }
 
@@ -49,6 +49,9 @@ public class Wrist extends SubsystemBase{
     }
     public void stop() {
         position = wristEncoder.getPosition(); // Save position to hold
+    }
+    public void setPosition(double m_position){
+        position = m_position;
     }
     public boolean atSetpoint() {
     return pidController.atSetpoint(); // Uses WPILib's built-in tolerance checking

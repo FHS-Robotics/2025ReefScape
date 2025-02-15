@@ -14,22 +14,17 @@ public class Intake extends SubsystemBase{
      *
      * Clockwise = Ball In / Tube Out
      * Counter Clockwise = Ball Out / Tube In
-     */
-
-    private double speed;
-    
+     */    
     public Intake(){
         intakeMotor = new SparkFlex(Constants.intakeMotorID, MotorType.kBrushless);
-    
-        speed = 0.5;
     }
 
-    public void BallIn_TubeOut(){
+    public void BallIn_TubeOut(double speed){
         // Right Trigger RT
         intakeMotor.set(-speed);
     }
 
-    public void BallOut_TubeIn(){
+    public void BallOut_TubeIn(double speed){
         // Left Trigger LT
         intakeMotor.set(speed);
     }
