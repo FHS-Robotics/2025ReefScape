@@ -51,7 +51,7 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger binding
     
-    autoChooser.setDefaultOption("Reef Auto", LeftToReef.auto(drivebase, elevator, wrist, intake));
+    autoChooser.setDefaultOption("Reef Auto", new LeftToReef(drivebase, elevator, wrist, intake));
     SmartDashboard.putData("Auto Choices", autoChooser);
     
     drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
