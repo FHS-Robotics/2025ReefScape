@@ -31,6 +31,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 public class SwerveSubsystem extends SubsystemBase {
+  
   File directory = new File(Filesystem.getDeployDirectory(),"swerve");
     SwerveDrive  swerveDrive;
 
@@ -49,6 +50,7 @@ public class SwerveSubsystem extends SubsystemBase {
     {
       throw new RuntimeException(e);
     }
+    setupPathPlanner();
     }
 
   

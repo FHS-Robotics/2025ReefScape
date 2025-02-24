@@ -11,6 +11,8 @@ public final class Constants {
     public static final double DEADBAND = 0.5;
   }
 
+  public static int pigeon2ID = 17;
+
   //ELEVATOR
   public static int elevatorRightID = 13;
   public static int elevatorLeftID = 14;

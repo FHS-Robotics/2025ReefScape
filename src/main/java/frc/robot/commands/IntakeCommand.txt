@@ -1,0 +1,44 @@
+package frc.robot.commands;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.subsystems.Intake;
+import frc.robot.RobotContainer;
+
+public class IntakeCommand extends InstantCommand {
+    private final Intake intake;
+    private final String action;
+    private double speed;
+
+    public IntakeCommand(Intake intake, String action) {
+        this.intake = intake;
+        this.action = action;
+        addRequirements(intake);
+    }
+
+    @Override
+    public void execute() {
+        SmartDashboard.putNumber("Speed", speed);
+        switch (action) {
+            case "BallIn_TubeOut":
+                intake.BallIn_TubeOut(RobotContainer.rightTriggerValue());
+                break;
+            case "BallOut_TubeIn":
+                intake.BallOut_TubeIn(RobotContainer.leftTriggerValue());
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid action: " + action);
+        }
+    }
+    /*
+    @Override
+    public boolean isAtFinished(){
+        if(RobotContainer.rightTriggerValue() < 0.1 && RobotContainer.leftTriggerValue() < 0.1){
+            return true;
+        }
+        else(){
+            return false;
+        }
+    }
+    */
+}
