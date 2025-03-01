@@ -13,6 +13,9 @@ import static edu.wpi.first.units.Units.Meter;
 import java.io.File;
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.configs.GyroTrimConfigs;
+import com.ctre.phoenix6.configs.Pigeon2Configuration;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.PIDConstants;
@@ -21,22 +24,29 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 import swervelib.SwerveDrive;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 public class SwerveSubsystem extends SubsystemBase {
+
+  Pigeon2 pigeon2;
   
   File directory = new File(Filesystem.getDeployDirectory(),"swerve");
-    SwerveDrive  swerveDrive;
+  SwerveDrive  swerveDrive;
 
   /** Creates a new ExampleSubsystem. */
   public SwerveSubsystem() {
+
+    pigeon2 = new Pigeon2(Constants.pigeon2ID);
+    pigeon2.setYaw(0);
     SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
     try
     {
@@ -79,9 +89,13 @@ public class SwerveSubsystem extends SubsystemBase {
     return false;
   }
 
+  public double GyroAngle(){
+    return pigeon2.getYaw().getValueAsDouble();
+  }
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    SmartDashboard.putNumber("Gyro Angle", pigeon2.getYaw().getValueAsDouble());
+    this.swerveDrive.setGyro(new Rotation3d(new Rotation2d(pigeon2.getYaw().getValue())));
   }
 
   @Override

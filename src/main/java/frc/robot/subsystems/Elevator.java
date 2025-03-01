@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
 import frc.robot.Constants;
+import frc.robot.Robot;
+
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
@@ -21,8 +23,12 @@ public class Elevator extends SubsystemBase {
     private PIDController pidController;
 
     private double setpoint; // Desired elevator position
-    private double maxHeight = 400;
+    private double maxHeight = 105.6;
     private double minHeight = 0;
+
+    private double manualSpeed;
+
+    private boolean killSwitch;
 
     public Elevator() {
     
@@ -32,41 +38,52 @@ public class Elevator extends SubsystemBase {
         encoder = elevatorRight.getEncoder();
 
         //kp controls speed
-        pidController = new PIDController(0.25, 0.0, 0.0);
+        pidController = new PIDController(0.1, 0.0, 0.0);
+        
+        pidController.setTolerance(0.1); // Small error tolerance
 
-        pidController.setTolerance(0.05); // Small error tolerance
+        manualSpeed = 0.6;
 
         setpoint = 0.0;
-    
+
+        killSwitch = false;     
     }
 
+    public void toggleKillSwitch(){
+        if(killSwitch == true){
+            killSwitch = false;
+        }
+        else if(killSwitch == false){
+            killSwitch = true;
+
+            setpoint = encoder.getPosition();
+        }
+    }
     public void moveUp(){
-        setpoint = setpoint + 0.2;
+        setpoint = setpoint + manualSpeed;
+        
         if(setpoint > maxHeight){
             setpoint = maxHeight;
-        }
-        if(setpoint < minHeight){
-            setpoint = minHeight;
         }
         
     }
 
     public void moveDown(){
-        setpoint = setpoint - 0.2;
-        
-        if(setpoint > maxHeight){
-            setpoint = maxHeight;
-        }
+        setpoint = setpoint - manualSpeed;
+
         if(setpoint < minHeight){
             setpoint = minHeight;
         }
     }
 
     public void setHeight(double targetPosition) {
+        
         setpoint = targetPosition;
+        
         if(setpoint > maxHeight){
             setpoint = maxHeight;
         }
+        
         if(setpoint < minHeight){
             setpoint = minHeight;
         }
@@ -76,22 +93,28 @@ public class Elevator extends SubsystemBase {
         return pidController.atSetpoint(); //may not be needed
     }    
 
-    @Override
+    @Override // Runs every 10 ms
     public void periodic() {
-        SmartDashboard.putNumber("Elevator Setpoint", setpoint);
-        // Run PID control in the periodic loop
-        double position = encoder.getPosition(); 
-        double speed = pidController.calculate(position, setpoint);
+        if(killSwitch == false){
+            
+            SmartDashboard.putNumber("Elevator Setpoint", setpoint);
+            double position = encoder.getPosition(); 
+            double speed = pidController.calculate(position, setpoint);
 
-        // Apply the same speed to both motors for sync
-        elevatorRight.set(speed);
-        elevatorLeft.set(-speed);
+            // Apply the same speed to both motors for sync
+            elevatorRight.set(speed);
+            elevatorLeft.set(-speed);
 
-        if(-0.3 > RobotContainer.getYValue()){
-            moveUp();
+            if(-0.3 > RobotContainer.getLeftYValue()){
+                moveUp();
+            }
+            if(0.3 < RobotContainer.getLeftYValue()){
+                moveDown();
+            }
         }
-        if(0.3 < RobotContainer.getYValue()){
-            moveDown();
+        if(RobotContainer.rightBumperPressed()){
+            toggleKillSwitch();
         }
-}
+    
+    }
 }

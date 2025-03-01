@@ -5,6 +5,7 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
@@ -29,7 +30,7 @@ public class Intake extends SubsystemBase{
         
         encoder = intakeMotor.getEncoder();
 
-        pidController = new PIDController(0.1, 0, 0);
+        pidController = new PIDController(0, 0, 0);
     
         pidController.setTolerance(0.05);
     }
@@ -45,6 +46,7 @@ public class Intake extends SubsystemBase{
     }
     @Override
     public void periodic(){
+        SmartDashboard.putNumber("Intake Speed", setpoint);
         if(RobotContainer.rightTriggerValue() > 0.1){
             BallIn_TubeOut(RobotContainer.rightTriggerValue());
             setpoint = encoder.getPosition();

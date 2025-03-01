@@ -39,23 +39,17 @@ public class Wrist extends SubsystemBase{
         minLimit = 0;
     }
 
-    public void rotateUp(){
+    public void rotateUp(double distance){
         // Right Bumper
-        position = position + 0.2;
+        position = position + distance;
         if(position > maxLimit){
             position = maxLimit;
-        }
-        if(position < minLimit){
-            position = minLimit;
         }
     }
     
-    public void rotateDown(){
+    public void rotateDown(double distance){
         // Left Bumper
-        position = position - 0.2;
-        if(position > maxLimit){
-            position = maxLimit;
-        }
+        position = position - distance;
         if(position < minLimit){
             position = minLimit;
         }
@@ -63,7 +57,6 @@ public class Wrist extends SubsystemBase{
     
     public void holdPosition() {
         double output = pidController.calculate(wristEncoder.getPosition(), position);
-        SmartDashboard.putNumber("Wrist Position", position);
         rotationalMotor.set(output);
     }
     public void stop() {
@@ -78,11 +71,12 @@ public class Wrist extends SubsystemBase{
 
     @Override
     public void periodic(){
-        if(RobotContainer.rightBumperPressed()){
-            rotateUp();
+        SmartDashboard.putNumber("Wrist Position", position);
+        if(RobotContainer.getRightYValue() > 0.3){
+            rotateUp(0.2);
         }
-        if(RobotContainer.leftBumperPressed()){
-            rotateDown();
+        if(RobotContainer.getRightYValue() < -0.3){
+            rotateDown(0.2);
         }
 
         holdPosition();
