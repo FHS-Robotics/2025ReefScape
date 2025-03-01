@@ -37,7 +37,7 @@ public class Intake extends SubsystemBase{
 
     public void BallIn_TubeOut(double speed){
         // Right Trigger RT
-        intakeMotor.set(-speed);
+        intakeMotor.set(-speed * 0.5);
     }
 
     public void BallOut_TubeIn(double speed){

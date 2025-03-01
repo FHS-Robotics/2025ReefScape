@@ -39,31 +39,45 @@ public class RobotContainer {
   private final SwerveSubsystem drivebase = new SwerveSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController = new CommandXboxController(
-      OperatorConstants.kDriverControllerPort);
-
-  private final static CommandXboxController m_operatorController = new CommandXboxController(
-      OperatorConstants.kOperatorControllerPort);
-
-  private final Elevator elevator = new Elevator();
-  private final Intake intake = new Intake();
-  private final Wrist wrist = new Wrist();
-
-  public static double getLeftYValue() {
-    double y = m_operatorController.getLeftY();
-    return y;
-  }
-
-  public static double getRightYValue() {
-    return m_operatorController.getRightY();
-  }
-
-  public static boolean rightBumperPressed() {
-    return m_operatorController.rightBumper().getAsBoolean();
-  }
-
-  public static boolean leftBumperPressed() {
-    return m_operatorController.leftBumper().getAsBoolean();
+  private final static CommandXboxController m_driverController = new CommandXboxController(
+        OperatorConstants.kDriverControllerPort);
+  
+    private final static CommandXboxController m_operatorController = new CommandXboxController(
+        OperatorConstants.kOperatorControllerPort);
+  
+    private final Elevator elevator = new Elevator();
+    private final Intake intake = new Intake();
+    private final Wrist wrist = new Wrist();
+  
+    private int invertSwerveSwitch = -1;
+  
+    public void invertSwerve(){
+      if(invertSwerveSwitch == -1){
+        invertSwerveSwitch = 1;
+      }
+      else if(invertSwerveSwitch == 1){
+        invertSwerveSwitch = -1;
+      }
+    }
+    public static double getLeftYValue() {
+      double y = m_operatorController.getLeftY();
+      return y;
+    }
+  
+    public static double getRightYValue() {
+      return m_operatorController.getRightY();
+    }
+  
+    public static boolean rightBumperPressed() {
+      return m_operatorController.rightBumper().getAsBoolean();
+    }
+  
+    public static boolean leftBumperPressed() {
+      return m_operatorController.leftBumper().getAsBoolean();
+    }
+  
+    public static boolean driverLeftBumperPressed(){
+      return m_driverController.leftBumper().getAsBoolean();
   }
 
   public static double rightTriggerValue() {
@@ -94,7 +108,7 @@ public class RobotContainer {
       .withControllerRotationAxis(m_driverController::getRightX)
       .deadband(OperatorConstants.DEADBAND)
       .scaleTranslation(-1)// If want faster change to 1
-      .allianceRelativeControl(false);
+      .allianceRelativeControl(true);
 
   SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(
       m_driverController::getRightX,
@@ -158,7 +172,6 @@ public class RobotContainer {
     // Move elevator to Level 4 when Y is pressed
     m_operatorController.y().onTrue(new ElevatorCommand(elevator, 4));
 
-    m_driverController.start().onTrue(Commands.runOnce(()->driveAngularVelocity.allianceRelativeControl(false)));
     // INTAKE
 
     // BallIn_TubeOut on RT press

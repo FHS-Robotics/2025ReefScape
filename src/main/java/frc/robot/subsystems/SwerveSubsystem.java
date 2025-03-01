@@ -5,8 +5,11 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 
 import static edu.wpi.first.units.Units.Meter;
 
@@ -34,6 +37,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 
 public class SwerveSubsystem extends SubsystemBase {
 
@@ -47,6 +51,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     pigeon2 = new Pigeon2(Constants.pigeon2ID);
     pigeon2.setYaw(0);
+
+    RobotModeTriggers.autonomous().onTrue(Commands.runOnce(this::zeroGyroWithAlliance));
     SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
     try
     {
@@ -96,6 +102,10 @@ public class SwerveSubsystem extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("Gyro Angle", pigeon2.getYaw().getValueAsDouble());
     this.swerveDrive.setGyro(new Rotation3d(new Rotation2d(pigeon2.getYaw().getValue())));
+
+    if(RobotContainer.driverLeftBumperPressed()){
+      pigeon2.setYaw(GyroAngle() + 180);
+    }
   }
 
   @Override
@@ -117,6 +127,26 @@ public Command driveFieldOriented(Supplier<ChassisSpeeds>velocity){
   return run(()->{
     swerveDrive.driveFieldOriented(velocity.get());
   });
+}
+public Pose2d getPose(){
+  return swerveDrive.getPose();
+}
+public void resetOdometry(Pose2d initialHolonomicPose){
+  swerveDrive.resetOdometry(initialHolonomicPose);
+}
+public void zeroGyro(){
+  swerveDrive.zeroGyro();
+}
+private boolean isRedAlliance(){
+  var alliance = DriverStation.getAlliance();
+  return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
+}
+public void zeroGyroWithAlliance(){
+  if(isRedAlliance()){
+    zeroGyro();
+
+    resetOdometry(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(180)));
+  }
 }
 
 public void setupPathPlanner()
