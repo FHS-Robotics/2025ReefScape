@@ -23,47 +23,47 @@ public class Wrist extends SubsystemBase{
     private RelativeEncoder wristEncoder;
 
     private double position;
-
-    private double maxLimit;
-    private double minLimit;
-
-    public Wrist(){
-        rotationalMotor = new SparkFlex(Constants.rotationalMotorID, MotorType.kBrushless);
+    
+        private double maxLimit;
+        private double minLimit;
+    
+        public Wrist(){
+            rotationalMotor = new SparkFlex(Constants.rotationalMotorID, MotorType.kBrushless);
+            
+            wristEncoder = rotationalMotor.getEncoder();
+    
+            pidController = new PIDController(0.1, 0.0, 0.0063);
+            pidController.setTolerance(0.3);
+    
+            maxLimit = 14.5;
+            minLimit = 0;
+        }
+    
+        public void rotateUp(double distance){
+            // Right Bumper
+            position = position + distance;
+            if(position > maxLimit){
+                position = maxLimit;
+            }
+        }
         
-        wristEncoder = rotationalMotor.getEncoder();
-
-        pidController = new PIDController(0.1, 0.0, 0.0);
-        pidController.setTolerance(0.3);
-
-        maxLimit = 14.5;
-        minLimit = 0;
-    }
-
-    public void rotateUp(double distance){
-        // Right Bumper
-        position = position + distance;
-        if(position > maxLimit){
-            position = maxLimit;
+        public void rotateDown(double distance){
+            // Left Bumper
+            position = position - distance;
+            if(position < minLimit){
+                position = minLimit;
+            }
         }
-    }
-    
-    public void rotateDown(double distance){
-        // Left Bumper
-        position = position - distance;
-        if(position < minLimit){
-            position = minLimit;
+        
+        public void holdPosition() {
+            double output = pidController.calculate(wristEncoder.getPosition(), position);
+            rotationalMotor.set(output);
         }
-    }
-    
-    public void holdPosition() {
-        double output = pidController.calculate(wristEncoder.getPosition(), position);
-        rotationalMotor.set(output);
-    }
-    public void stop() {
-        position = wristEncoder.getPosition(); // Save position to hold
-    }
-    public void setPosition(double m_position){
-        position = m_position;
+        public void stop() {
+            position = wristEncoder.getPosition(); // Save position to hold
+        }
+        public void setPosition(double m_position){
+            position = m_position;
     }
     public boolean atSetpoint() {
     return pidController.atSetpoint(); // Uses WPILib's built-in tolerance checking
@@ -73,10 +73,13 @@ public class Wrist extends SubsystemBase{
     public void periodic(){
         SmartDashboard.putNumber("Wrist Position", position);
         if(RobotContainer.getRightYValue() > 0.3){
-            rotateUp(0.2);
+            rotateDown(0.2);
         }
         if(RobotContainer.getRightYValue() < -0.3){
-            rotateDown(0.2);
+            rotateUp(0.2);
+        }
+        if(RobotContainer.leftBumperPressed()){
+            setPosition(2);
         }
 
         holdPosition();

@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import frc.robot.Constants;
-import frc.robot.Robot;
 
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -38,7 +37,7 @@ public class Elevator extends SubsystemBase {
         encoder = elevatorRight.getEncoder();
 
         //kp controls speed
-        pidController = new PIDController(0.1, 0.0, 0.0);
+        pidController = new PIDController(0.1, 0.0, 0.001);
         
         pidController.setTolerance(0.1); // Small error tolerance
 
@@ -89,9 +88,9 @@ public class Elevator extends SubsystemBase {
         }
     }
 
-    public boolean isAtSetpoint() {
-        return pidController.atSetpoint(); //may not be needed
-    }    
+    public double getHeight(){
+        return encoder.getPosition();
+    }
 
     @Override // Runs every 10 ms
     public void periodic() {

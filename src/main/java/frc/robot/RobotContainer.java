@@ -2,11 +2,15 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+
+
+//Update
 package frc.robot;
 
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.CoralToReef;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.ElevatorKillSwitch;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -33,7 +37,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  */
 public class RobotContainer {
 
-  private SendableChooser<Command> autoChooser = new SendableChooser<>();
+  private SendableChooser<Command> autoChooser;
 
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem();
@@ -93,22 +97,22 @@ public class RobotContainer {
    */
   public RobotContainer() {
     // Configure the trigger binding
+    autoChooser = new SendableChooser<Command>();
     autoChooser = AutoBuilder.buildAutoChooser("autoChooser");
+    autoChooser.addOption("RightToCoral", new CoralToReef(drivebase, elevator, wrist, intake));
     SmartDashboard.putData("Auto Choices", autoChooser);
-    //autoChooser.addOption("Auto", );
-
     drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
     configureButtonBindings();
   }
 
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(
       drivebase.getSwerveDrive(),
-      () -> m_driverController.getLeftY() * 1,
-      () -> m_driverController.getLeftX() * 1)
+      () -> m_driverController.getLeftY() * -1,
+      () -> m_driverController.getLeftX() * -1)
       .withControllerRotationAxis(m_driverController::getRightX)
       .deadband(OperatorConstants.DEADBAND)
-      .scaleTranslation(-1)// If want faster change to 1
-      .allianceRelativeControl(true);
+      .scaleTranslation(1)// If want faster change to 1
+      .allianceRelativeControl(false);
 
   SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(
       m_driverController::getRightX,

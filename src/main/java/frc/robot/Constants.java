@@ -18,7 +18,6 @@ public final class Constants {
   public static int elevatorLeftID = 14;
   public static double elevatorMultiplier = 1.5;
 
-
   //INTAKE
   public static int intakeMotorID = 15;
   public static int rotationalMotorID = 16;

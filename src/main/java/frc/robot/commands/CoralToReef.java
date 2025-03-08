@@ -13,20 +13,20 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Wrist;
 
-public final class LeftToReef extends SequentialCommandGroup {
+public final class CoralToReef extends SequentialCommandGroup {
   /** Example static factory for an autonomous command. */
-  public LeftToReef(SwerveSubsystem drivebase, Elevator elevator, Wrist wrist, Intake intake) {
+  public CoralToReef(SwerveSubsystem drivebase, Elevator elevator, Wrist wrist, Intake intake) {
     addCommands(
-      new PathPlannerAuto("ReefPath").withTimeout(5.0), // Follow the path to Reef
-      new WaitCommand(0.5),
-      Commands.runOnce(() -> elevator.setHeight(1.0), elevator), // Raise elevator to preset height
-      new WaitCommand(0.5),
-      Commands.runOnce(() -> wrist.rotateDown(), wrist), // Move wrist to shooting position
-      new WaitCommand(0.5),
-      Commands.runOnce(() -> intake.BallIn_TubeOut(0.5), intake)); // Activate intake
+      new PathPlannerAuto("LeftToCoralAuto").withTimeout(5.0), // Follow the path to Reef
+      new WaitCommand(3),
+      Commands.runOnce(() -> wrist.rotateUp(7), wrist), // Move wrist to shooting position
+      new WaitCommand(2.5),
+      //Commands.runOnce(() -> elevator.setHeight(1.0), elevator), // Raise elevator to preset height
+      //new WaitCommand(0.5),
+      Commands.run(() -> intake.BallIn_TubeOut(0.5), intake).withTimeout(2)); // Activate intake
   }
 
-  private LeftToReef() {
+  private CoralToReef() {
     throw new UnsupportedOperationException("This is a utility class!");
   }
 }
