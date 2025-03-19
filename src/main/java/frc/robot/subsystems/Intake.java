@@ -1,64 +1,46 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 
-public class Intake extends SubsystemBase{
+public class Intake extends SubsystemBase {
 
     private SparkFlex intakeMotor;
 
-    private RelativeEncoder encoder;
-    
-    private PIDController pidController;
-
-    private double setpoint;
     /*
-     *  COUNTERCLOCKWISE IS POSITIVE
+     * COUNTERCLOCKWISE IS POSITIVE
      *
      * Clockwise = Ball In / Tube Out
      * Counter Clockwise = Ball Out / Tube In
-     */    
-    public Intake(){
-        intakeMotor = new SparkFlex(Constants.intakeMotorID, MotorType.kBrushless);
-        
-        encoder = intakeMotor.getEncoder();
+     */
+    public Intake() {
 
-        pidController = new PIDController(0, 0, 0);
-    
-        pidController.setTolerance(0.05);
+        intakeMotor = new SparkFlex(Constants.intakeMotorID, MotorType.kBrushless);
     }
 
-    public void BallIn_TubeOut(double speed){
+    public void BallIn_TubeOut(double speed) {
         // Right Trigger RT
         intakeMotor.set(-speed * 0.5);
     }
 
-    public void BallOut_TubeIn(double speed){
+    public void BallOut_TubeIn(double speed) {
         // Left Trigger LT
         intakeMotor.set(speed);
     }
+
     @Override
-    public void periodic(){
-        SmartDashboard.putNumber("Intake Speed", setpoint);
-        if(RobotContainer.rightTriggerValue() > 0.1){
+    public void periodic() {
+        if (RobotContainer.rightTriggerValue() > 0.05) {
             BallIn_TubeOut(RobotContainer.rightTriggerValue());
-            setpoint = encoder.getPosition();
-        }
-        else if(RobotContainer.leftTriggerValue() > 0.1){
+        } else if (RobotContainer.leftTriggerValue() > 0.05) {
             BallOut_TubeIn(RobotContainer.leftTriggerValue());
-            setpoint = encoder.getPosition();
         }
         else{
             intakeMotor.set(0);
-            double output = pidController.calculate(encoder.getPosition(), setpoint);
-            intakeMotor.set(output);
         }
     }
 }

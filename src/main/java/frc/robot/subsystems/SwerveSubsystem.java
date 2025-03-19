@@ -10,14 +10,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
-
 import static edu.wpi.first.units.Units.Meter;
 
 import java.io.File;
 import java.util.function.Supplier;
 
-import com.ctre.phoenix6.configs.GyroTrimConfigs;
-import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -37,7 +34,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 
 public class SwerveSubsystem extends SubsystemBase {
 
@@ -69,31 +65,6 @@ public class SwerveSubsystem extends SubsystemBase {
     setupPathPlanner();
     }
 
-  
-
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
-  public Command exampleMethodCommand() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return runOnce(
-        () -> {
-          /* one-time action goes here */
-        });
-  }
-
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
-  public boolean exampleCondition() {
-    // Query some boolean state, such as a digital sensor.
-    return false;
-  }
 
   public double GyroAngle(){
     return pigeon2.getYaw().getValueAsDouble();
@@ -216,4 +187,31 @@ public void setupPathPlanner()
 public Command getAutonomousCommand(String pathName) {
   return new PathPlannerAuto(pathName);
 }
+
+public void driveAutoAlign(double forward, double rotation){
+  driveFieldOriented(new ChassisSpeeds(forward, 0, rotation));
+}
+
+public boolean isManualControlActive(boolean value){
+  //Detct if driver is manually moving the swerve drive
+  double deadband = 0.4;
+  if(Math.abs(RobotContainer.m_driverController.getLeftY()) > deadband || 
+  Math.abs(RobotContainer.m_driverController.getLeftX()) > deadband ||
+  Math.abs(RobotContainer.m_driverController.getRightX()) > deadband){
+    value = true;
+  }
+  return value;
+}
+public void stop(){
+  swerveDrive.driveFieldOriented(new ChassisSpeeds(0,0,0));
+}
+
+/** Moves the robot using robot-relative speeds (for AutoAlign). */
+     public void setRobotRelativeSpeeds(double forwardSpeed, double strafeSpeed, double rotationSpeed) {
+        swerveDrive.setChassisSpeeds(new ChassisSpeeds(forwardSpeed, strafeSpeed, rotationSpeed));
+    }
+
+    public void addVisionMeasurement(Pose2d visionPose, double timestamp) {
+        swerveDrive.addVisionMeasurement(visionPose, timestamp);
+    }
 }
